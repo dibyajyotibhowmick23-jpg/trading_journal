@@ -8,10 +8,9 @@ app.use(cors());
 app.use(express.json());
 
 /* ---------------- CONNECT MONGODB ---------------- */
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log("✅ MongoDB Connected"))
+  .catch((err) => console.log("❌ MongoDB Error:", err));
 .then(() => {
   console.log("✅ MongoDB Connected");
 })
