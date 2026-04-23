@@ -1,24 +1,19 @@
 const express = require("express");
-const cors = require("cors");
 const mongoose = require("mongoose");
+const cors = require("cors");
 
 const app = express();
 
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-/* ---------------- CONNECT MONGODB ---------------- */
+// ================= MONGODB CONNECTION =================
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB Connected"))
   .catch((err) => console.log("❌ MongoDB Error:", err));
-.then(() => {
-  console.log("✅ MongoDB Connected");
-})
-.catch((err) => {
-  console.log("❌ MongoDB Error:", err);
-});
 
-/* ---------------- MODEL ---------------- */
+// ================= MODEL =================
 const TradeSchema = new mongoose.Schema({
   stock: String,
   pnl: Number,
@@ -27,7 +22,12 @@ const TradeSchema = new mongoose.Schema({
 
 const Trade = mongoose.model("Trade", TradeSchema);
 
-/* ---------------- ROUTES ---------------- */
+// ================= ROUTES =================
+
+// Test route
+app.get("/", (req, res) => {
+  res.send("Backend is working 🚀");
+});
 
 // GET all trades
 app.get("/api/trades", async (req, res) => {
@@ -37,12 +37,7 @@ app.get("/api/trades", async (req, res) => {
 
 // ADD trade
 app.post("/api/trades", async (req, res) => {
-  const newTrade = new Trade({
-    stock: req.body.stock,
-    pnl: req.body.pnl,
-    date: new Date()
-  });
-
+  const newTrade = new Trade(req.body);
   await newTrade.save();
   res.json(newTrade);
 });
@@ -50,10 +45,12 @@ app.post("/api/trades", async (req, res) => {
 // DELETE trade
 app.delete("/api/trades/:id", async (req, res) => {
   await Trade.findByIdAndDelete(req.params.id);
-  res.json({ message: "Deleted" });
+  res.json({ message: "Trade deleted" });
 });
 
-/* ---------------- SERVER ---------------- */
-app.listen(5000, () => {
-  console.log("Server running on http://localhost:5000");
+// ================= SERVER =================
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
